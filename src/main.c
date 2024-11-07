@@ -1,17 +1,11 @@
 /**
   ******************************************************************************
   * @file    main.c
-  * @author  Weili An, Niraj Menon
-  * @date    Jan 31 2024
-  * @brief   ECE 362 Lab 5 Student template
+  * @author  Weili An, Niraj Menon, Dana Shi
+  * @date    Nov 2024
+  * @brief   ECE 362 Project - LED Subsystem
   ******************************************************************************
 */
-
-/*******************************************************************************/
-
-// Fill out your username, otherwise your completion code will have the 
-// wrong username!
-const char* username = "shi562";
 
 /*******************************************************************************/ 
 
@@ -30,45 +24,9 @@ void print(const char str[]);
 // Print a floating-point value.
 void printfloat(float f);
 
-void autotest(void);
-
 //============================================================================
 // PWM Lab Functions
 //============================================================================
-void setup_tim3(void) {
-    RCC -> APB1ENR |= RCC_APB1ENR_TIM3EN;   //turn on TIM3
-    RCC -> AHBENR |= RCC_AHBENR_GPIOCEN;    //turn on GPIOC
-
-    GPIOC -> MODER &= 0xfff00fff;   //clear PC6-PC9 
-    GPIOC -> MODER |= 0x000aa000;   //set PC6-PC9 to alternate function
-    GPIOC -> AFR[0] &= (~0xf) << (4*6);     //TIM3, channel 1, PC6, AF0, RED LED
-    GPIOC -> AFR[0] &= (~0xf) << (4*7);     //TIM3, channel 2, PC7, AF0, YELLOW LED
-    GPIOC -> AFR[1] &= (~0xf);     //TIM3, channel 3, PC8, AF0, GREEN LED
-    GPIOC -> AFR[1] &= (~0xf) << 4;     //TIM3, channel 4, PC9, AF0, BLUE LED
-
-    TIM3 -> PSC = 48000 - 1;
-    TIM3 -> ARR = 1000 - 1;
-
-    TIM3 -> CCMR1 |= TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1;   //channel 1, PWM mode 1 = 110
-    TIM3 -> CCMR1 &= ~TIM_CCMR1_OC1M_0;
-    TIM3 -> CCMR1 |= TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1;   //channel 2, PWM mode 1 = 110
-    TIM3 -> CCMR1 &= ~TIM_CCMR1_OC2M_0;
-    TIM3 -> CCMR2 |= TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1;   //channel 3, PWM mode 1 = 110
-    TIM3 -> CCMR2 &= ~TIM_CCMR2_OC3M_0;
-    TIM3 -> CCMR2 |= TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1;   //channel 4, PWM mode 1 = 110
-    TIM3 -> CCMR2 &= ~TIM_CCMR2_OC4M_0; 
-
-    TIM3 -> CCER |= TIM_CCER_CC1E;  //enable channel 1 output
-    TIM3 -> CCER |= TIM_CCER_CC2E;  //enable channel 2 output
-    TIM3 -> CCER |= TIM_CCER_CC3E;  //enable channel 3 output
-    TIM3 -> CCER |= TIM_CCER_CC4E;  //enable channel 4 output
-    TIM3 -> CR1 |= TIM_CR1_CEN;     //enable timer 3
-
-    TIM3 -> CCR1 = 800;     
-    TIM3 -> CCR2 = 600;
-    TIM3 -> CCR3 = 400;
-    TIM3 -> CCR4 = 200; 
-}
 
 void setup_tim1(void) {
     // Generally the steps are similar to those in setup_tim3
@@ -93,37 +51,38 @@ void setup_tim1(void) {
     TIM1 -> PSC = 1 - 1;
     TIM1 -> ARR = 2400 - 1;
 
-    TIM1 -> CCMR1 |= TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1;   //channel 1, PWM mode 1 = 110
+    TIM1 -> CCMR1 |= TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1;   //channel 1, PWM mode 1 = 110 //RED
     TIM1 -> CCMR1 &= ~TIM_CCMR1_OC1M_0;
-    TIM1 -> CCMR1 |= TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1;   //channel 2, PWM mode 1 = 110
-    TIM1 -> CCMR1 &= ~TIM_CCMR1_OC2M_0;
-    TIM1 -> CCMR2 |= TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1;   //channel 3, PWM mode 1 = 110
-    TIM1 -> CCMR2 &= ~TIM_CCMR2_OC3M_0;
-    TIM1 -> CCMR2 |= TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1;   //channel 4, PWM mode 1 = 110
-    TIM1 -> CCMR2 &= ~TIM_CCMR2_OC4M_0; 
-    TIM1 -> CCMR2 |= TIM_CCMR2_OC4PE;   //channel 4, enalbe "output compare preload enable"
+    //TIM1 -> CCMR1 |= TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1;   //channel 2, PWM mode 1 = 110
+    //TIM1 -> CCMR1 &= ~TIM_CCMR1_OC2M_0;
+    //TIM1 -> CCMR2 |= TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1;   //channel 3, PWM mode 1 = 110
+    //TIM1 -> CCMR2 &= ~TIM_CCMR2_OC3M_0;
+    //TIM1 -> CCMR2 |= TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1;   //channel 4, PWM mode 1 = 110 //GREEN
+    //TIM1 -> CCMR2 &= ~TIM_CCMR2_OC4M_0; 
+    //TIM1 -> CCMR2 |= TIM_CCMR2_OC4PE;   //channel 4, enalbe "output compare preload enable"
 
     TIM1 -> CCER |= TIM_CCER_CC1E;  //enable channel 1 output
-    TIM1 -> CCER |= TIM_CCER_CC2E;  //enable channel 2 output
-    TIM1 -> CCER |= TIM_CCER_CC3E;  //enable channel 3 output
-    TIM1 -> CCER |= TIM_CCER_CC4E;  //enable channel 4 output
+    //TIM1 -> CCER |= TIM_CCER_CC2E;  //enable channel 2 output
+    //TIM1 -> CCER |= TIM_CCER_CC3E;  //enable channel 3 output
+    //TIM1 -> CCER |= TIM_CCER_CC4E;  //enable channel 4 output
+
     TIM1 -> CR1 |= TIM_CR1_CEN;     //enable timer 1
 }
 
-int getrgb(void);
+//int getrgb(void);
 
 // Helper function for you
 // Accept a byte in BCD format and convert it to decimal
-uint8_t bcd2dec(uint8_t bcd) {
+/*uint8_t bcd2dec(uint8_t bcd) {
     // Lower digit
     uint8_t dec = bcd & 0xF;
 
     // Higher digit
     dec += 10 * (bcd >> 4);
     return dec;
-}
+}*/
 
-void setrgb(int rgb) {
+/*void setrgb(int rgb) {
     uint8_t b = bcd2dec(rgb & 0xFF);
     uint8_t g = bcd2dec((rgb >> 8) & 0xFF);
     uint8_t r = bcd2dec((rgb >> 16) & 0xFF);
@@ -136,7 +95,7 @@ void setrgb(int rgb) {
     TIM1 -> CCR1 = ((TIM1 -> ARR) + 1) - ((r/100.0) * ((TIM1 -> ARR) + 1));
     TIM1 -> CCR2 = ((TIM1 -> ARR) + 1) - ((g/100.0) * ((TIM1 -> ARR) + 1));
     TIM1 -> CCR3 = ((TIM1 -> ARR) + 1) - ((b/100.0) * ((TIM1 -> ARR) + 1));
-} 
+} */
 
 
 
@@ -146,13 +105,13 @@ void setrgb(int rgb) {
 //============================================================================
 
 // Part 3: Analog-to-digital conversion for a volume level.
-int volume = 2400;
+// int volume = 2400;
 
 // Variables for boxcar averaging.
-#define BCSIZE 32
+/*#define BCSIZE 32
 int bcsum = 0;
 int boxcar[BCSIZE];
-int bcn = 0;
+int bcn = 0;*/
 
 void dialer(void);
 
@@ -187,7 +146,7 @@ void enable_ports(void) {
 //============================================================================
 // setup_dma() + enable_dma()
 //============================================================================
-void setup_dma(void) {
+/*void setup_dma(void) {
     RCC -> AHBENR |= RCC_AHBENR_DMA1EN;
  
     DMA1_Channel5 -> CMAR = (uint32_t)msg;
@@ -200,22 +159,22 @@ void setup_dma(void) {
     DMA1_Channel5 -> CCR &= ~DMA_CCR_PSIZE;
     DMA1_Channel5 -> CCR |= DMA_CCR_PSIZE_0;
     DMA1_Channel5 -> CCR |= DMA_CCR_CIRC;
-}
+}*/
 
-void enable_dma(void) {
+/*void enable_dma(void) {
     DMA1_Channel5 -> CCR |= DMA_CCR_EN;
-}
+}*/
 
 //============================================================================
 // init_tim15()
 //============================================================================
-void init_tim15(void) {
+/*void init_tim15(void) {
     RCC -> APB2ENR |= RCC_APB2ENR_TIM15EN;
     TIM15 -> PSC = 2400 - 1;
     TIM15 -> ARR = 20 - 1;
     TIM15 -> DIER |= TIM_DIER_UDE;
     TIM15 -> CR1 |= TIM_CR1_CEN;
-}
+}*/
 
 //=============================================================================
 // Part 2: Debounced keypad scanning.
@@ -223,42 +182,43 @@ void init_tim15(void) {
 
 uint8_t col; // the column being scanned
 
-void drive_column(int);   // energize one of the column outputs
+/* void drive_column(int);   // energize one of the column outputs
 int  read_rows();         // read the four row inputs
 void update_history(int col, int rows); // record the buttons of the driven column
 char get_key_event(void); // wait for a button event (press or release)
 char get_keypress(void);  // wait for only a button press event.
 float getfloat(void);     // read a floating-point number from keypad
 void show_keys(void);     // demonstrate get_key_event()
+*/
 
 //============================================================================
 // The Timer 7 ISR
 //============================================================================
-void TIM7_IRQHandler(){
+/*void TIM7_IRQHandler(){
     TIM7 -> SR &= ~TIM_SR_UIF;  // acknowledge the interrupt 
     int rows = read_rows();
     update_history(col, rows);
     col = (col + 1) & 3;
     drive_column(col);
-}
+} */
 
 
 //============================================================================
 // init_tim7()
 //============================================================================
-void init_tim7(void) {
+/*void init_tim7(void) {
     RCC -> APB1ENR |= RCC_APB1ENR_TIM7EN;
     TIM7 -> PSC = 2400 - 1;
     TIM7 -> ARR = 20 - 1;
     TIM7 -> DIER |= TIM_DIER_UIE;
     NVIC -> ISER[0] = 1 << TIM7_IRQn;
     TIM7 -> CR1 |= TIM_CR1_CEN;
-}
+} */
 
 //============================================================================
 // setup_adc()
 //============================================================================
-void setup_adc(void) {
+/*void setup_adc(void) {
     RCC -> AHBENR |= RCC_AHBENR_GPIOAEN;    //enable clock to GPIOA
     GPIOA -> MODER |= 0xC;
     RCC -> APB2ENR |= RCC_APB2ENR_ADCEN;    //enable clock to ADC peripheral
@@ -271,14 +231,14 @@ void setup_adc(void) {
     while(!(ADC1 -> ISR & ADC_ISR_ADRDY));   //wait for ADC to be ready
     ADC1 -> CR |= ADC_CR_ADSTART;   //start ADC
     while(!(ADC1 -> ISR & ADC_ISR_EOC));    //wait for end of conversion
-}
+} */
 
 
 //============================================================================
 // Timer 2 ISR
 //============================================================================
 // Write the Timer 2 ISR here.  Be sure to give it the right name.
-void TIM2_IRQHandler(){
+/*void TIM2_IRQHandler(){
     TIM2 -> SR &= ~TIM_SR_UIF;  // acknowledge the interrupt 
     ADC1 -> CR |= ADC_CR_ADSTART;
     while(!(ADC1 -> ISR & ADC_ISR_EOC));    //wait until the EOC bit is set in the ISR
@@ -292,12 +252,12 @@ void TIM2_IRQHandler(){
 
     for(int x=0; x<10000; x++)  //step 6
     ;
-}
+} */
 
 //============================================================================
 // init_tim2()
 //============================================================================
-void init_tim2(void) {
+/*void init_tim2(void) {
     RCC -> APB1ENR |= RCC_APB1ENR_TIM2EN;
     TIM2 -> PSC = 24000 - 1;
     TIM2 -> ARR = 200 - 1;
@@ -305,14 +265,14 @@ void init_tim2(void) {
     NVIC -> ISER[0] = 1 << TIM2_IRQn;
     TIM2 -> CR1 |= TIM_CR1_CEN;
     NVIC_SetPriority(TIM2_IRQn, 3);
-}
+} */
 
 
 
 //============================================================================
 // setup_dac()
 //============================================================================
-void setup_dac(void) {
+/*void setup_dac(void) {
     RCC -> AHBENR |= RCC_AHBENR_GPIOAEN;
     GPIOA -> MODER &= ~0x300;
     GPIOA -> MODER |= 0x300;    //set analog config for DAC_OUT1 (PA4)
@@ -322,13 +282,13 @@ void setup_dac(void) {
     DAC -> CR |= DAC_CR_TEN1;   //enable trigger for DAC
     DAC -> CR |= DAC_CR_EN1;    //enable DAC
 
-}
+} */
 
 //============================================================================
 // Timer 6 ISR
 //============================================================================
 // Write the Timer 6 ISR here.  Be sure to give it the right name.
-void TIM6_DAC_IRQHandler(){
+/* void TIM6_DAC_IRQHandler(){
     TIM6 -> SR &= ~TIM_SR_UIF;  // acknowledge the interrupt 
     offset0 += step0;
     offset1 += step1;
@@ -349,12 +309,12 @@ void TIM6_DAC_IRQHandler(){
     // samp += 2048;
     samp = ((samp * volume)>>18) + 1200;
     TIM1 -> CCR4 = samp;
-}
+} */
 
 //============================================================================
 // init_tim6()
 //============================================================================
-void init_tim6(void) {
+/* void init_tim6(void) {
     RCC -> APB1ENR |= RCC_APB1ENR_TIM6EN;
     TIM6 -> PSC = (100000 / RATE) - 1;
     TIM6 -> ARR = 480 - 1;
@@ -363,7 +323,7 @@ void init_tim6(void) {
     TIM6 -> CR1 |= TIM_CR1_CEN;
     TIM6 -> CR2 &= ~TIM_CR2_MMS_1;
     //TIM6 -> CR2 |= TIM_CR2_MMS_1;  //enable TRG0 on update event
-} 
+}  */
 
 //===========================================================================
 // init_wavetable()
@@ -379,7 +339,7 @@ void init_wavetable(void) {
 //============================================================================
 // set_freq()
 //============================================================================
-void set_freq(int chan, float f) {
+/* void set_freq(int chan, float f) {
     if (chan == 0) {
         if (f == 0.0) {
             step0 = 0;
@@ -394,7 +354,7 @@ void set_freq(int chan, float f) {
         } else
             step1 = (f * N / RATE) * (1<<16);
     }
-}
+} */
 
 
 //============================================================================
@@ -403,51 +363,41 @@ void set_freq(int chan, float f) {
 int main(void) {
     internal_clock();
 
-    // Uncomment autotest to get the confirmation code.
-    autotest();
-
-    // Demonstrate part 1
-// #define TEST_TIMER3
-#ifdef TEST_TIMER3
-    setup_tim3();
-    for(;;) { }
-#endif
-
-    // Initialize the display to something interesting to get started.
-    msg[0] |= font['E'];
-    msg[1] |= font['C'];
-    msg[2] |= font['E'];
-    msg[3] |= font[' '];
-    msg[4] |= font['3'];
-    msg[5] |= font['6'];
-    msg[6] |= font['2'];
-    msg[7] |= font[' '];
-
     enable_ports();
-    setup_dma();
-    enable_dma();
-    init_tim15();
-    init_tim7();
-    setup_adc();
-    init_tim2();
+    //setup_dma();
+    //enable_dma();
+    //init_tim15();
+    //init_tim7();
+    //setup_adc();
+    //init_tim2();
     init_wavetable();
-    init_tim6();
+    //init_tim6();
 
     setup_tim1();
 
     // demonstrate part 2
-// #define TEST_TIM1
+#define TEST_TIM1
 #ifdef TEST_TIM1
+    uint16_t breatheTime = 10; 
+
     for(;;) {
         // Breathe in...
-        for(float x=1; x<2400; x *= 1.1) {
-            TIM1->CCR1 = TIM1->CCR2 = TIM1->CCR3 = 2400-x;
-            nano_wait(100000000);
+
+        for(float x=1; x<2400; x *= 1.5) {
+            TIM1->CCR1 = 2400-x;
+            nano_wait(100000000 - breatheTime);   // "frequency"      
         }
         // ...and out...
-        for(float x=2400; x>=1; x /= 1.1) {
-            TIM1->CCR1 = TIM1->CCR2 = TIM1->CCR3 = 2400-x;
-            nano_wait(100000000);
+        for(float x=2400; x>=1; x /= 1.5) {
+            TIM1->CCR1 = 2400-x;
+            nano_wait(100000000 - breatheTime);   // "frequency"
+        }
+
+        if(breatheTime < 100000000){
+            breatheTime *= 50;
+        }
+        else{
+            breatheTime = 10;
         }
         // ...and start over.
     }
