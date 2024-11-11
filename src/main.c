@@ -97,20 +97,9 @@ int main(void) {
     internal_clock();
 
     enable_ports();
-    //setup_dma();
-    //enable_dma();
-    //init_tim15();
-    //init_tim7();
-    //setup_adc();
-    //init_tim2();
     init_wavetable();
-    //init_tim6();
 
     setup_tim1();
-
-    // demonstrate part 2
-#define TEST_TIM1
-#ifdef TEST_TIM1
 
     float count = 0;
 
@@ -131,7 +120,6 @@ int main(void) {
 
         // ...and start over.
     }
-#endif
 
     // Have fun.
     dialer();
